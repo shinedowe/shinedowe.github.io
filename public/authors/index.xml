@@ -2,16 +2,16 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Authors on Shinedowe</title>
-    <link>http://localhost:1313/authors/</link>
+    <link>https://shinedowe.github.io/authors/</link>
     <description>Recent content in Authors on Shinedowe</description>
     <generator>Hugo</generator>
     <language>en</language>
-    <atom:link href="http://localhost:1313/authors/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://shinedowe.github.io/authors/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Reese Gerjekian</title>
-      <link>http://localhost:1313/authors/reese-gerjekian/</link>
+      <link>https://shinedowe.github.io/authors/reese-gerjekian/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/authors/reese-gerjekian/</guid>
+      <guid>https://shinedowe.github.io/authors/reese-gerjekian/</guid>
       <description></description>
     </item>
   </channel>
