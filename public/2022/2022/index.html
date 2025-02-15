@@ -133,21 +133,18 @@
 
   
   <script>
-    (function() {
-        let obf = atob("INJECT_KEY_HERE_BASE64"); 
+    let obf = atob("INJECT_KEY_HERE_BASE64"); 
 
-        
-        window.getDecryptionKey = function() {
-            return obf;
-        };
-
-        
-        setTimeout(() => {
-            console.warn("Wiping decryption key...");
-            obf = null;
-            window.getDecryptionKey = function() { return null; };
-        }, 15000); 
-    })();
+    window.getDecryptionKey = function() {
+        return obf;
+    };
+    
+    
+    setTimeout(() => {
+        console.warn("Wiping decryption key...");
+        obf = null;
+        window.getDecryptionKey = function() { return null; };
+    }, 15000);
 </script>
 
 <script>

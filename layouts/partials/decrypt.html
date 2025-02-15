@@ -1,19 +1,16 @@
 <script>
-    (function() {
-        let obf = atob("INJECT_KEY_HERE_BASE64"); // Decode Base64 key
+    let obf = atob("INJECT_KEY_HERE_BASE64"); // Store decoded key globally
 
-        // Securely provide access to the decryption key
-        window.getDecryptionKey = function() {
-            return obf;
-        };
-
-        // Delay key wiping to allow decryption to complete
-        setTimeout(() => {
-            console.warn("Wiping decryption key...");
-            obf = null;
-            window.getDecryptionKey = function() { return null; };
-        }, 15000); // Wipe after 15 seconds
-    })();
+    window.getDecryptionKey = function() {
+        return obf;
+    };
+    
+    // Wipe key after 15 seconds
+    setTimeout(() => {
+        console.warn("Wiping decryption key...");
+        obf = null;
+        window.getDecryptionKey = function() { return null; };
+    }, 15000);
 </script>
 
 <script>
