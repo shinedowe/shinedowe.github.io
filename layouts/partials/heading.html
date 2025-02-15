@@ -215,34 +215,65 @@
     };
 
     (function() {
-        console.log = console.warn = console.error = console.info = console.debug = function() {
-            return false;
-        };
-    })();
-
-    (function() {
-        let hiddenDiv = document.querySelector('.hidden-content');
+        // Store original console functions
+        let realConsoleLog = console.log;
+        let realConsoleWarn = console.warn;
+        let realConsoleError = console.error;
+        let realConsoleInfo = console.info;
+        let realConsoleDebug = console.debug;
+        let realConsoleClear = console.clear;
     
+        // Prevent overriding console.clear
+        Object.defineProperty(console, 'clear', {
+            get: function() {
+                return function() {
+                    realConsoleClear.call(console);
+                };
+            },
+            set: function() {}
+        });
+    
+        // Fake logs to mislead users
+        console.log = console.warn = console.error = console.info = console.debug = function(...args) {
+            realConsoleLog.apply(console, ["[Hidden Log]"]); // Show dummy log instead
+        };
+    
+        // Detect if DevTools is open using a timing attack
         function detectDevTools() {
-            if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
-                console.warn("🚨 DevTools detected! Obfuscating content...");
-                
-                // Remove previous Shadow DOM and reattach it
-                hiddenDiv.innerHTML = '';
-                const shadow = hiddenDiv.attachShadow({ mode: 'closed' });
-                const warningMessage = document.createElement('span');
-                warningMessage.textContent = "🅽🅸🅲🅴 🆃🆁🆈 🫵🏻";
-                shadow.appendChild(warningMessage);
+            let before = performance.now();
+            debugger;
+            let after = performance.now();
+    
+            if (after - before > 100) {
+                console.clear();
+                console.log("🚨 DevTools Detected: Logs Hidden");
+    
+                // Overwrite console so they can't bypass it
+                Object.defineProperty(window, "console", {
+                    get: function() {
+                        return {
+                            log: function() {},
+                            warn: function() {},
+                            error: function() {},
+                            info: function() {},
+                            debug: function() {},
+                            clear: function() {}
+                        };
+                    },
+                    set: function() {}
+                });
+    
+                // Replace page content if needed
+                document.body.innerHTML = "<h1>🚨 Unauthorized Access 🚨</h1>";
             }
         }
     
-        setInterval(detectDevTools, 500);
+        // Run detection every 2 seconds
+        setInterval(detectDevTools, 2000);
+    
+        // Constantly clear logs to prevent history access
+        setInterval(() => {
+            console.clear();
+        }, 1500);
     })();
-    setInterval(() => {
-        console.clear();
-        console.log("🔒 Console cleared for security reasons.");
-    }, 1000); // Clears every second
-    if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
-        console = undefined;
-    }
 </script>

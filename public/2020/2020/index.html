@@ -348,36 +348,67 @@
     };
 
     (function() {
-        console.log = console.warn = console.error = console.info = console.debug = function() {
-            return false;
-        };
-    })();
-
-    (function() {
-        let hiddenDiv = document.querySelector('.hidden-content');
+        
+        let realConsoleLog = console.log;
+        let realConsoleWarn = console.warn;
+        let realConsoleError = console.error;
+        let realConsoleInfo = console.info;
+        let realConsoleDebug = console.debug;
+        let realConsoleClear = console.clear;
     
+        
+        Object.defineProperty(console, 'clear', {
+            get: function() {
+                return function() {
+                    realConsoleClear.call(console);
+                };
+            },
+            set: function() {}
+        });
+    
+        
+        console.log = console.warn = console.error = console.info = console.debug = function(...args) {
+            realConsoleLog.apply(console, ["[Hidden Log]"]); 
+        };
+    
+        
         function detectDevTools() {
-            if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
-                console.warn("🚨 DevTools detected! Obfuscating content...");
+            let before = performance.now();
+            debugger;
+            let after = performance.now();
+    
+            if (after - before > 100) {
+                console.clear();
+                console.log("🚨 DevTools Detected: Logs Hidden");
+    
                 
+                Object.defineProperty(window, "console", {
+                    get: function() {
+                        return {
+                            log: function() {},
+                            warn: function() {},
+                            error: function() {},
+                            info: function() {},
+                            debug: function() {},
+                            clear: function() {}
+                        };
+                    },
+                    set: function() {}
+                });
+    
                 
-                hiddenDiv.innerHTML = '';
-                const shadow = hiddenDiv.attachShadow({ mode: 'closed' });
-                const warningMessage = document.createElement('span');
-                warningMessage.textContent = "🅽🅸🅲🅴 🆃🆁🆈 🫵🏻";
-                shadow.appendChild(warningMessage);
+                document.body.innerHTML = "<h1>🚨 Unauthorized Access 🚨</h1>";
             }
         }
     
-        setInterval(detectDevTools, 500);
+        
+        setInterval(detectDevTools, 2000);
+    
+        
+        setInterval(() => {
+            console.clear();
+        }, 1500);
     })();
-    setInterval(() => {
-        console.clear();
-        console.log("🔒 Console cleared for security reasons.");
-    }, 1000); 
-    if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
-        console = undefined;
-    }
 </script>
 
   <style>
