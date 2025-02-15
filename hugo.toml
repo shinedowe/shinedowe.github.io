@@ -6,6 +6,7 @@ paginate = 6
 enableEmoji = true
 # Enable Disqus comments
 # disqusShortname = "yourdiscussshortname"
+disablePathToLower = true
 
 [security]
   enableInlineShortcodes = false
@@ -25,7 +26,6 @@ info = ["Words of Wisdom and Stupidity"]
 #gravatar = "john.doe@example.com"
 dateFormat = "January 2, 2006"
 since = 2020
-lowercaseURLs = true  # Forces lowercase URLs globally
 # Specify light/dark colorscheme
 # Supported values:
 # "auto" (use preference set by browser)
