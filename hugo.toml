@@ -134,4 +134,9 @@ languageName = ":en:"
 [[languages.en.menu.main]]
 name = "WOWS"
 weight = 2
-url = "WOWS/"
+url = "wows/"
+
+[[languages.en.menu.main]]
+name = "Docs"
+weight = 3
+url = "docs/"
