@@ -19,10 +19,10 @@
         {{ end }}
       </li>
 
-      <!-- Docs Link (Always Visible) -->
+      <!-- Cipher Link (Always Visible) -->
       <li class="navigation-item">
-        <a class="navigation-link" href="/docs/">Docs</a>
-        {{ if and (hasPrefix .RelPermalink "/docs/") (gt (len (split .RelPermalink "/")) 3) }}
+        <a class="navigation-link" href="/cipher/">Cipher</a>
+        {{ if and (hasPrefix .RelPermalink "/cipher/") (gt (len (split .RelPermalink "/")) 3) }}
           &gt; <span class="breadcrumb-year">{{ .Title }}</span>
         {{ end }}
       </li>
