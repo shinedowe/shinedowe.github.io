@@ -13,8 +13,8 @@
     <ul class="navigation-list">
       <!-- WOWS Link (Always Visible) -->
       <li class="navigation-item">
-        <a class="navigation-link" href="/WOWS/">WOWS</a>
-        {{ if and (hasPrefix .RelPermalink "/WOWS/") (gt (len (split .RelPermalink "/")) 3) }}
+        <a class="navigation-link" href="/wows/">WOWS</a>
+        {{ if and (hasPrefix .RelPermalink "/wows/") (gt (len (split .RelPermalink "/")) 3) }}
           &gt; <span class="breadcrumb-year">{{ .Title }}</span>
         {{ end }}
       </li>
