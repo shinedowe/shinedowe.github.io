@@ -1,0 +1,117 @@
+<section class="container list">
+  <header>
+    <h1 class="title">
+        {{- if eq .Kind "term" -}}
+          {{- i18n .Data.Plural 1 | title -}}
+          {{- print ": " -}}
+        {{- end -}}
+        {{- i18n (lower .Title) | default .Title | title -}}
+    </h1>
+  </header>
+  {{ .Content }}
+  <ul>
+    {{ range .Paginator.Pages }}
+    <li>
+      <span class="date">{{ .Date | time.Format (.Site.Params.dateFormat | default "January 2, 2006" ) }}</span>
+      <a class="title" href="{{ .Params.externalLink | default .RelPermalink }}">{{ .Title }}</a>
+    </li>
+    {{ end }}
+  </ul>
+  {{ partial "pagination.html" . }}
+</section>
+
+<script>
+  // Disable right-click
+  document.addEventListener("contextmenu", function (e) {
+      e.preventDefault();
+  });
+
+  // Function to remove or alter text
+  function removeText() {
+    let textElements = document.querySelectorAll(".content");
+    let navbar = document.querySelector("nav"); // Finds the first <nav> element
+
+    // Change main cipher text to a styled button inside a centered div
+    textElements.forEach(el => {
+        if (el.textContent.trim() !== "") {
+            el.innerHTML = '<div class="center-container"><a href="/" class="home-button">🅽🅸🅲🅴 🆃🆁🆈 🫵🏻</a></div>';
+        }
+    });
+
+    // Hide the navbar dynamically (if found)
+    if (navbar) {
+        navbar.style.display = "none";
+    }
+}
+
+  // Function to redirect before unwanted actions
+  function redirectToSafePage() {
+      window.location.href = "/"; // Change to your "safe" page
+  }
+
+  // Detect print event and remove text before printing
+  window.addEventListener("beforeprint", function () {
+      removeText();
+  });
+
+  // Detect page save attempts (Ctrl+S or Cmd+S)
+  document.addEventListener("keydown", function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+          e.preventDefault();
+          removeText(); // Remove content before save
+          alert("Saving is disabled.");
+          return false;
+      }
+  });
+
+  // Detect copy attempts and remove text
+  document.addEventListener("copy", function (e) {
+      e.preventDefault();
+      removeText(); // Remove content if user tries to copy
+      alert("Copying is disabled.");
+      return false;
+  });
+
+  // Detect email attempt (Cmd+Shift+I or Ctrl+Shift+I)
+  document.addEventListener("keydown", function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "i") {
+          e.preventDefault();
+          redirectToSafePage(); // Redirect instead of allowing email
+          return false;
+      }
+  });
+
+</script>
+
+<style>
+/* Style for the home button */
+.home-button {
+  display: inline-block;
+  background-color: inherit; /* Keeps the background color */
+  color: inherit !important; /* Ensures the text color remains unchanged */
+  padding: 15px 30px;
+  font-size: 20px;
+  text-decoration: none; /* Removes underline */
+  border-radius: 8px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.8); /* Stronger, darker shadow */
+  transition: all 0.3s ease-in-out;
+  text-align: center;
+}
+
+/* Hover effect */
+.home-button:hover {
+  background-color: inherit;
+  transform: scale(1.05);
+  box-shadow: 0px 15px 40px rgba(0, 0, 0, 1); /* Even stronger shadow on hover */
+}
+
+/* Center the button in the middle of the page */
+.center-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full viewport height */
+  width: 100%;
+  text-align: center;
+}
+</style>

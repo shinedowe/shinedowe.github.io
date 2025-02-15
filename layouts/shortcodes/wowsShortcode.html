@@ -1,0 +1,34 @@
+<ul class="section-list">
+    {{ range .Site.Sections.ByWeight }}
+        {{ range .Pages.ByWeight }}
+            <li class="page-item"><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+        {{ end }}
+    {{ end }}
+</ul>
+
+<style>
+    .section-title {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    ul {
+        margin-left: 0;
+        padding-left: 0;
+        list-style-type: none;
+    }
+    
+    li {
+        margin: 5px 0;
+    }
+    
+    a {
+        text-decoration: none;
+        color: #007acc;
+    }
+    
+    a:hover {
+        text-decoration: underline;
+    }
+</style>

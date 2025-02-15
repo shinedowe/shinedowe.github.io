@@ -1,0 +1,33 @@
+{{ define "title" }}
+  {{ .Title }} · {{ .Site.Title }}
+{{ end }}
+
+{{ define "content" }}
+  <div class="wows-container">
+    <h1>{{ .Title }}</h1>
+
+      <!-- Hidden Encrypted Content -->
+      <div id="encrypted-content" style="display:none;">
+          {{ .Content | plainify }}
+      </div>
+  </div>
+
+  <!-- Include Decryption Script -->
+  {{ partial "decrypt.html" . }}
+
+  <style>
+    .wows-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+  }
+  
+  .wows-container h1 {
+      align-self: flex-start; /* Ensures title stays on the left */
+  }
+  </style>
+{{ end }}

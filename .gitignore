@@ -1,0 +1,3 @@
+# Ignore key.js so it never gets committed
+static/js/key.js
+public/js/key.js
