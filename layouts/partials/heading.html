@@ -215,8 +215,21 @@
     };
 
     (function() {
-        console.log = console.warn = console.error = console.info = console.debug = function() {
-            return false;
-        };
+        let hiddenDiv = document.querySelector('.hidden-content');
+    
+        function detectDevTools() {
+            if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
+                console.warn("🚨 DevTools detected! Obfuscating content...");
+                
+                // Remove previous Shadow DOM and reattach it
+                hiddenDiv.innerHTML = '';
+                const shadow = hiddenDiv.attachShadow({ mode: 'closed' });
+                const warningMessage = document.createElement('span');
+                warningMessage.textContent = "🅽🅸🅲🅴 🆃🆁🆈 🫵🏻";
+                shadow.appendChild(warningMessage);
+            }
+        }
+    
+        setInterval(detectDevTools, 500);
     })();
 </script>
