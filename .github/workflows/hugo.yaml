@@ -43,8 +43,10 @@ jobs:
           HUGO_ENV: production
         run: |
           hugo --gc --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
-      - name: Inject Decryption Key Securely
-        run: echo "window.loadDecryptionKey = function() { return '${{ secrets.DECRYPTION_KEY }}'; };" > public/js/key.js
+      - name: Debug Decryption Key
+        run: |
+          echo "Key Length: ${#DECRYPTION_KEY}"
+          echo "window.loadDecryptionKey = function() { return '${{ secrets.DECRYPTION_KEY }}'; };" > public/js/key.js
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
