@@ -134,26 +134,37 @@
   
   <script>
     (function() {
+        
         let obf = atob("INJECT_KEY_HERE_BASE64"); 
+
+        
         window.getDecryptionKey = function() {
             return obf;
         };
-        setTimeout(() => { obf = null; }, 5000); 
+
+        
+        setTimeout(() => {
+            console.warn("Wiping decryption key...");
+            obf = null;
+            window.getDecryptionKey = function() { return null; };
+        }, 15000); 
     })();
 </script>
+
 <script>
+    
     setInterval(() => {
         if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
             console.warn("DevTools detected! Wiping decryption key...");
-            window.getDecryptionKey = null; 
-            console.log = function() {};
+            window.getDecryptionKey = function() { return null; }; 
+            console.log = function() {}; 
             console.warn = function() {};
             console.error = function() {};
         }
     }, 1000);
 </script>
-<script>
 
+<script>
     
     function base64DecodeUnicode(str) {
         return decodeURIComponent(atob(str).split('').map(function(c) {
@@ -164,17 +175,21 @@
     
     function decryptContent(encryptedText, key) {
         console.log("Encrypted Text (Raw):", encryptedText);
-    
+
+        if (!key) {
+            console.error("Decryption key is missing!");
+            return "Error decrypting content.";
+        }
+
         try {
             const decodedText = base64DecodeUnicode(encryptedText);
             console.log("Decoded Text (UTF-8):", decodedText);
-    
-            
+
             let decrypted = '';
             for (let i = 0; i < decodedText.length; i++) {
                 decrypted += String.fromCharCode(decodedText.charCodeAt(i) ^ key.charCodeAt(i % key.length));
             }
-    
+
             console.log("Decrypted Content:", decrypted);
             return decrypted;
         } catch (e) {
@@ -182,100 +197,39 @@
             return "Error decrypting content.";
         }
     }
-    
-    
-    function drawDecryptedText(text) {
-        const canvas = document.getElementById("decryptionCanvas");
-        if (!canvas) {
-            console.error("Canvas element not found!");
-            return;
-        }
-    
-        const ctx = canvas.getContext("2d");
-    
-        
-        const maxWidth = 750; 
-        const lineHeight = 30; 
-    
-        
-        ctx.font = "20px 'ShinedowLetters', 'OrbitronNumbers'";
-        ctx.fillStyle = "#000";
-        ctx.textAlign = "left";
-    
-        
-        const scale = window.devicePixelRatio || 1;
-        canvas.width = maxWidth * scale; 
-        ctx.scale(scale, scale);
-    
-        
-        function wrapText(context, text, x, y, maxWidth, lineHeight) {
-            let paragraphs = text.split("\n"); 
-    
-            let lines = [];
-            let yOffset = y;
-            
-            paragraphs.forEach(paragraph => {
-                let words = paragraph.split(' ');
-                let line = '';
-    
-                for (let i = 0; i < words.length; i++) {
-                    let testLine = line + words[i] + ' ';
-                    let testWidth = context.measureText(testLine).width;
-    
-                    if (testWidth > maxWidth && i > 0) {
-                        lines.push(line);
-                        line = words[i] + ' ';
-                    } else {
-                        line = testLine;
-                    }
-                }
-                lines.push(line);
-            });
-    
-            
-            canvas.height = (lines.length + 2) * lineHeight * scale;
-            ctx.scale(scale, scale);
-    
-            
-            lines.forEach((line, index) => {
-                context.fillText(line, x, yOffset);
-                yOffset += lineHeight;
-            });
-        }
-    
-        
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-        
-        wrapText(ctx, text, 20, 40, maxWidth, lineHeight);
-    }
-    
+
     window.onload = function () {
         const encryptedElement = document.getElementById('encrypted-content');
         if (!encryptedElement) {
             console.error("Encrypted content element not found!");
             return;
         }
-    
+
         const encryptedContent = encryptedElement.textContent.trim();
+        const decryptionKey = window.getDecryptionKey ? window.getDecryptionKey() : null;
+
+        if (!decryptionKey) {
+            console.error("Decryption key not available.");
+            return;
+        }
+
         const decryptedContent = decryptContent(encryptedContent, decryptionKey);
-    
         console.log("Decrypted Content:", decryptedContent);
-    
+
         
         const hiddenDiv = document.createElement('div');
         hiddenDiv.className = "hidden-content";
-    
+
         
         const shadow = hiddenDiv.attachShadow({ mode: 'closed' });
-    
+
         
         let lines = decryptedContent.split("\n");
-    
+
         
         lines.forEach((line) => {
             let lineDiv = document.createElement("div");
-    
+
             for (let char of line) {
                 let span = document.createElement("span");
                 if (/[A-Za-z]/.test(char)) {
@@ -288,10 +242,10 @@
                 span.textContent = char;
                 lineDiv.appendChild(span);
             }
-    
+
             shadow.appendChild(lineDiv);
         });
-    
+
         
         const container = document.querySelector(".wows-container");
         if (container) {
@@ -300,10 +254,10 @@
             console.warn("wows-container not found! Appending to body instead.");
             document.body.appendChild(hiddenDiv);
         }
-    
+
         
         encryptedElement.textContent = "";
-    
+
         
         const style = document.createElement("style");
         style.textContent = `
@@ -327,7 +281,7 @@
             }
         `;
         shadow.appendChild(style);
-    
+
         
         const globalStyle = document.createElement("style");
         globalStyle.textContent = `
@@ -337,7 +291,7 @@
             }
         `;
         document.head.appendChild(globalStyle);
-    
+
         
         setInterval(() => {
             if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {

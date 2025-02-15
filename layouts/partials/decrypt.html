@@ -1,25 +1,36 @@
 <script>
     (function() {
-        let obf = atob("INJECT_KEY_HERE_BASE64"); // Base64 encoded key
+        // Store the Base64-encoded decryption key and decode it in memory
+        let obf = atob("INJECT_KEY_HERE_BASE64"); 
+
+        // Provide a function to access the key securely
         window.getDecryptionKey = function() {
             return obf;
         };
-        setTimeout(() => { obf = null; }, 5000); // Wipe key from memory after 5 seconds
+
+        // Ensure key is available long enough for decryption, then wipe it
+        setTimeout(() => {
+            console.warn("Wiping decryption key...");
+            obf = null;
+            window.getDecryptionKey = function() { return null; };
+        }, 15000); // Wipe after 15 seconds
     })();
 </script>
+
 <script>
+    // DevTools detection: If opened, wipe key and disable logging
     setInterval(() => {
         if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
             console.warn("DevTools detected! Wiping decryption key...");
-            window.getDecryptionKey = null; // Remove function reference
-            console.log = function() {};
+            window.getDecryptionKey = function() { return null; }; // Remove function reference
+            console.log = function() {}; 
             console.warn = function() {};
             console.error = function() {};
         }
     }, 1000);
 </script>
-<script>
 
+<script>
     // Helper function to decode Base64 to UTF-8
     function base64DecodeUnicode(str) {
         return decodeURIComponent(atob(str).split('').map(function(c) {
@@ -30,17 +41,21 @@
     // Function to decrypt content using XOR
     function decryptContent(encryptedText, key) {
         console.log("Encrypted Text (Raw):", encryptedText);
-    
+
+        if (!key) {
+            console.error("Decryption key is missing!");
+            return "Error decrypting content.";
+        }
+
         try {
             const decodedText = base64DecodeUnicode(encryptedText);
             console.log("Decoded Text (UTF-8):", decodedText);
-    
-            // XOR decryption
+
             let decrypted = '';
             for (let i = 0; i < decodedText.length; i++) {
                 decrypted += String.fromCharCode(decodedText.charCodeAt(i) ^ key.charCodeAt(i % key.length));
             }
-    
+
             console.log("Decrypted Content:", decrypted);
             return decrypted;
         } catch (e) {
@@ -48,100 +63,39 @@
             return "Error decrypting content.";
         }
     }
-    
-    // Function to properly format and wrap text on canvas
-    function drawDecryptedText(text) {
-        const canvas = document.getElementById("decryptionCanvas");
-        if (!canvas) {
-            console.error("Canvas element not found!");
-            return;
-        }
-    
-        const ctx = canvas.getContext("2d");
-    
-        // Set max width for text wrapping
-        const maxWidth = 750; // Keep text inside the canvas
-        const lineHeight = 30; // Space between lines
-    
-        // Set font and styles
-        ctx.font = "20px 'ShinedowLetters', 'OrbitronNumbers'";
-        ctx.fillStyle = "#000";
-        ctx.textAlign = "left";
-    
-        // Handle high-DPI (Retina) scaling
-        const scale = window.devicePixelRatio || 1;
-        canvas.width = maxWidth * scale; 
-        ctx.scale(scale, scale);
-    
-        // Wrap text manually
-        function wrapText(context, text, x, y, maxWidth, lineHeight) {
-            let paragraphs = text.split("\n"); // Split into paragraphs
-    
-            let lines = [];
-            let yOffset = y;
-            
-            paragraphs.forEach(paragraph => {
-                let words = paragraph.split(' ');
-                let line = '';
-    
-                for (let i = 0; i < words.length; i++) {
-                    let testLine = line + words[i] + ' ';
-                    let testWidth = context.measureText(testLine).width;
-    
-                    if (testWidth > maxWidth && i > 0) {
-                        lines.push(line);
-                        line = words[i] + ' ';
-                    } else {
-                        line = testLine;
-                    }
-                }
-                lines.push(line);
-            });
-    
-            // Adjust canvas height dynamically
-            canvas.height = (lines.length + 2) * lineHeight * scale;
-            ctx.scale(scale, scale);
-    
-            // Render wrapped text
-            lines.forEach((line, index) => {
-                context.fillText(line, x, yOffset);
-                yOffset += lineHeight;
-            });
-        }
-    
-        // Clear canvas before drawing
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-        // Draw wrapped text inside canvas
-        wrapText(ctx, text, 20, 40, maxWidth, lineHeight);
-    }
-    
+
     window.onload = function () {
         const encryptedElement = document.getElementById('encrypted-content');
         if (!encryptedElement) {
             console.error("Encrypted content element not found!");
             return;
         }
-    
+
         const encryptedContent = encryptedElement.textContent.trim();
+        const decryptionKey = window.getDecryptionKey ? window.getDecryptionKey() : null;
+
+        if (!decryptionKey) {
+            console.error("Decryption key not available.");
+            return;
+        }
+
         const decryptedContent = decryptContent(encryptedContent, decryptionKey);
-    
         console.log("Decrypted Content:", decryptedContent);
-    
+
         // 🔹 Create a div for displaying the text with a Shadow DOM
         const hiddenDiv = document.createElement('div');
         hiddenDiv.className = "hidden-content";
-    
+
         // Attach Shadow DOM (Hides spans from DevTools)
         const shadow = hiddenDiv.attachShadow({ mode: 'closed' });
-    
+
         // 🔹 Split text into lines to preserve line breaks
         let lines = decryptedContent.split("\n");
-    
+
         // 🔹 Format each line separately to keep text structure
         lines.forEach((line) => {
             let lineDiv = document.createElement("div");
-    
+
             for (let char of line) {
                 let span = document.createElement("span");
                 if (/[A-Za-z]/.test(char)) {
@@ -154,10 +108,10 @@
                 span.textContent = char;
                 lineDiv.appendChild(span);
             }
-    
+
             shadow.appendChild(lineDiv);
         });
-    
+
         // Append inside the correct container
         const container = document.querySelector(".wows-container");
         if (container) {
@@ -166,10 +120,10 @@
             console.warn("wows-container not found! Appending to body instead.");
             document.body.appendChild(hiddenDiv);
         }
-    
+
         // Hide the original encrypted content for security
         encryptedElement.textContent = "";
-    
+
         // 🔹 Inject CSS styles dynamically inside Shadow DOM
         const style = document.createElement("style");
         style.textContent = `
@@ -193,7 +147,7 @@
             }
         `;
         shadow.appendChild(style);
-    
+
         // 🔹 Prevent user selection & right-click on text
         const globalStyle = document.createElement("style");
         globalStyle.textContent = `
@@ -203,7 +157,7 @@
             }
         `;
         document.head.appendChild(globalStyle);
-    
+
         // 🔹 Detect if DevTools is opened and hide spans
         setInterval(() => {
             if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
