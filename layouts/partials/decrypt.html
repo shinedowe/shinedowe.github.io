@@ -1,14 +1,13 @@
 <script>
     (function() {
-        // Store the Base64-encoded decryption key and decode it in memory
-        let obf = atob("INJECT_KEY_HERE_BASE64"); 
+        let obf = atob("INJECT_KEY_HERE_BASE64"); // Decode Base64 key
 
-        // Provide a function to access the key securely
+        // Securely provide access to the decryption key
         window.getDecryptionKey = function() {
             return obf;
         };
 
-        // Ensure key is available long enough for decryption, then wipe it
+        // Delay key wiping to allow decryption to complete
         setTimeout(() => {
             console.warn("Wiping decryption key...");
             obf = null;
@@ -18,12 +17,12 @@
 </script>
 
 <script>
-    // DevTools detection: If opened, wipe key and disable logging
+    // Prevent DevTools users from logging the key
     setInterval(() => {
         if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
             console.warn("DevTools detected! Wiping decryption key...");
-            window.getDecryptionKey = function() { return null; }; // Remove function reference
-            console.log = function() {}; 
+            window.getDecryptionKey = function() { return null; };
+            console.log = function() {};
             console.warn = function() {};
             console.error = function() {};
         }
@@ -31,40 +30,25 @@
 </script>
 
 <script>
-    // Helper function to decode Base64 to UTF-8
-    function base64DecodeUnicode(str) {
-        return decodeURIComponent(atob(str).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-    }
-    
-    // Function to decrypt content using XOR
-    function decryptContent(encryptedText, key) {
-        console.log("Encrypted Text (Raw):", encryptedText);
+    function waitForKeyAndDecrypt() {
+        let attempts = 0;
+        let checkKey = setInterval(() => {
+            let decryptionKey = window.getDecryptionKey ? window.getDecryptionKey() : null;
 
-        if (!key) {
-            console.error("Decryption key is missing!");
-            return "Error decrypting content.";
-        }
-
-        try {
-            const decodedText = base64DecodeUnicode(encryptedText);
-            console.log("Decoded Text (UTF-8):", decodedText);
-
-            let decrypted = '';
-            for (let i = 0; i < decodedText.length; i++) {
-                decrypted += String.fromCharCode(decodedText.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+            if (decryptionKey) {
+                clearInterval(checkKey); // Stop checking
+                decryptAndDisplay(decryptionKey);
+            } else {
+                attempts++;
+                if (attempts > 15) { // Stop checking after 3 seconds
+                    clearInterval(checkKey);
+                    console.error("Decryption key not available.");
+                }
             }
-
-            console.log("Decrypted Content:", decrypted);
-            return decrypted;
-        } catch (e) {
-            console.error("Failed to decode and decrypt content:", e);
-            return "Error decrypting content.";
-        }
+        }, 200);
     }
 
-    window.onload = function () {
+    function decryptAndDisplay(decryptionKey) {
         const encryptedElement = document.getElementById('encrypted-content');
         if (!encryptedElement) {
             console.error("Encrypted content element not found!");
@@ -72,30 +56,23 @@
         }
 
         const encryptedContent = encryptedElement.textContent.trim();
-        const decryptionKey = window.getDecryptionKey ? window.getDecryptionKey() : null;
-
         if (!decryptionKey) {
-            console.error("Decryption key not available.");
+            console.error("Decryption key is missing!");
             return;
         }
 
         const decryptedContent = decryptContent(encryptedContent, decryptionKey);
         console.log("Decrypted Content:", decryptedContent);
 
-        // 🔹 Create a div for displaying the text with a Shadow DOM
+        // Display the decrypted content securely
         const hiddenDiv = document.createElement('div');
         hiddenDiv.className = "hidden-content";
 
-        // Attach Shadow DOM (Hides spans from DevTools)
         const shadow = hiddenDiv.attachShadow({ mode: 'closed' });
 
-        // 🔹 Split text into lines to preserve line breaks
         let lines = decryptedContent.split("\n");
-
-        // 🔹 Format each line separately to keep text structure
         lines.forEach((line) => {
             let lineDiv = document.createElement("div");
-
             for (let char of line) {
                 let span = document.createElement("span");
                 if (/[A-Za-z]/.test(char)) {
@@ -108,11 +85,9 @@
                 span.textContent = char;
                 lineDiv.appendChild(span);
             }
-
             shadow.appendChild(lineDiv);
         });
 
-        // Append inside the correct container
         const container = document.querySelector(".wows-container");
         if (container) {
             container.appendChild(hiddenDiv);
@@ -121,10 +96,8 @@
             document.body.appendChild(hiddenDiv);
         }
 
-        // Hide the original encrypted content for security
-        encryptedElement.textContent = "";
+        encryptedElement.textContent = ""; // Hide original encrypted text
 
-        // 🔹 Inject CSS styles dynamically inside Shadow DOM
         const style = document.createElement("style");
         style.textContent = `
             .hidden-content {
@@ -148,21 +121,24 @@
         `;
         shadow.appendChild(style);
 
-        // 🔹 Prevent user selection & right-click on text
+        // Disable selection & right-click
         const globalStyle = document.createElement("style");
         globalStyle.textContent = `
             .hidden-content span {
-                pointer-events: none; /* Blocks right-click and hover detection */
-                user-select: none; /* Prevents text selection */
+                pointer-events: none;
+                user-select: none;
             }
         `;
         document.head.appendChild(globalStyle);
 
-        // 🔹 Detect if DevTools is opened and hide spans
         setInterval(() => {
             if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
-                shadow.innerHTML = "<span>🅽🅸🅲🅴 🆃🆁🆈 🫵🏻</span>"; // Replace spans when DevTools is open
+                shadow.innerHTML = "<span>🅽🅸🅲🅴 🆃🆁🆈 🫵🏻</span>";
             }
         }, 1000);
+    }
+
+    window.onload = function () {
+        waitForKeyAndDecrypt();
     };
 </script>
