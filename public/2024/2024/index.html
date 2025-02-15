@@ -133,26 +133,22 @@
 
   
   <script>
-    let decryptionKey = null;
-
-    function fetchDecryptionKey() {
-        let script = document.createElement("script");
-        script.src = "/js/key.js"; 
-        script.onload = function() {
-            decryptionKey = window.loadDecryptionKey();
-            window.loadDecryptionKey = null; 
+    (function() {
+        let obf = atob("INJECT_KEY_HERE_BASE64"); 
+        window.getDecryptionKey = function() {
+            return obf;
         };
-        document.head.appendChild(script);
-    }
-
-    
-    fetchDecryptionKey();
-
-    
+        setTimeout(() => { obf = null; }, 5000); 
+    })();
+</script>
+<script>
     setInterval(() => {
         if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
             console.warn("DevTools detected! Wiping decryption key...");
-            decryptionKey = null; 
+            window.getDecryptionKey = null; 
+            console.log = function() {};
+            console.warn = function() {};
+            console.error = function() {};
         }
     }, 1000);
 </script>

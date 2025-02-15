@@ -44,9 +44,7 @@ jobs:
         run: |
           hugo --gc --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
       - name: Inject Decryption Key Securely
-        run: |
-          echo "Key Length: ${#DECRYPTION_KEY}"
-          echo "window.loadDecryptionKey = function() { return '${{ secrets.DECRYPTION_KEY }}'; };" > public/js/key.js
+        run: sed -i "s/INJECT_KEY_HERE_BASE64/$(echo -n '${{ secrets.DECRYPTION_KEY }}' | base64)/g" layouts/partials/decrypt.html
         env:
           DECRYPTION_KEY: ${{ secrets.DECRYPTION_KEY }}
       - name: Upload artifact

@@ -1,24 +1,20 @@
 <script>
-    let decryptionKey = null;
-
-    function fetchDecryptionKey() {
-        let script = document.createElement("script");
-        script.src = "/js/key.js"; // Load key from the dynamically generated file
-        script.onload = function() {
-            decryptionKey = window.loadDecryptionKey();
-            window.loadDecryptionKey = null; // Immediately remove function reference
+    (function() {
+        let obf = atob("INJECT_KEY_HERE_BASE64"); // Base64 encoded key
+        window.getDecryptionKey = function() {
+            return obf;
         };
-        document.head.appendChild(script);
-    }
-
-    // Call function to fetch the key dynamically
-    fetchDecryptionKey();
-
-    // Auto-wipe key if DevTools is detected
+        setTimeout(() => { obf = null; }, 5000); // Wipe key from memory after 5 seconds
+    })();
+</script>
+<script>
     setInterval(() => {
         if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
             console.warn("DevTools detected! Wiping decryption key...");
-            decryptionKey = null; // Remove key from memory
+            window.getDecryptionKey = null; // Remove function reference
+            console.log = function() {};
+            console.warn = function() {};
+            console.error = function() {};
         }
     }, 1000);
 </script>
