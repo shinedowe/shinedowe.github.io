@@ -8,6 +8,7 @@ enableEmoji = true
 # disqusShortname = "yourdiscussshortname"
 disablePathToLower = true
 
+
 [security]
   enableInlineShortcodes = false
 
@@ -137,6 +138,6 @@ weight = 2
 url = "wows/"
 
 [[languages.en.menu.main]]
-name = "Docs"
+name = "Cipher"
 weight = 3
-url = "docs/"
+url = "cipher/"

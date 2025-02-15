@@ -1,6 +1,6 @@
 +++
 title = "Shinedowe Cipher"
-slug = "docs"
+slug = "cipher"
 +++
 
 {{< docsShortcode >}}
