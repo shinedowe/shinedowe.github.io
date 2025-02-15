@@ -375,6 +375,9 @@
         console.clear();
         console.log("🔒 Console cleared for security reasons.");
     }, 1000); 
+    if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
+        console = undefined;
+    }
 </script>
 
   <style>
