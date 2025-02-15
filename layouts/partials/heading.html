@@ -19,16 +19,6 @@
             setHeading = null;
         }
     }, 1000);
-    (function() {
-        console.log = console.warn = console.error = console.info = console.debug = function() {
-            return false;
-        };
-    })();
-    (function() {
-        setInterval(() => {
-            debugger;
-        }, 50);
-    })();
 </script>
 <script>
 
