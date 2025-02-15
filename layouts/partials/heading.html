@@ -41,6 +41,27 @@
             event.preventDefault();
         }
     });
+    (function() {
+        let devtools = { open: false, orientation: null };
+    
+        function detectDevTools() {
+            const widthThreshold = window.outerWidth - window.innerWidth > 100;
+            const heightThreshold = window.outerHeight - window.innerHeight > 100;
+    
+            if (widthThreshold || heightThreshold) {
+                devtools.open = true;
+            } else {
+                devtools.open = false;
+            }
+    
+            if (devtools.open) {
+                document.body.innerHTML = "<h1>🛑 Unauthorized Access Detected!</h1>";
+                console.clear();
+            }
+        }
+    
+        setInterval(detectDevTools, 1000);
+    })();
 </script>
 <script>
 
