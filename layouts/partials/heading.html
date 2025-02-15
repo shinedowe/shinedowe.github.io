@@ -29,39 +29,6 @@
             debugger;
         }, 50);
     })();
-    document.addEventListener("contextmenu", event => event.preventDefault()); // Disable right-click
-    document.addEventListener("keydown", event => {
-        if (
-            (event.ctrlKey && event.shiftKey && event.key === "I") || // DevTools (Ctrl+Shift+I)
-            (event.ctrlKey && event.shiftKey && event.key === "C") || // DevTools (Ctrl+Shift+C)
-            (event.ctrlKey && event.shiftKey && event.key === "J") || // Console (Ctrl+Shift+J)
-            (event.ctrlKey && event.key === "U") || // View Source (Ctrl+U)
-            (event.ctrlKey && event.key === "S") // Save Page (Ctrl+S)
-        ) {
-            event.preventDefault();
-        }
-    });
-    (function() {
-        let devtools = { open: false, orientation: null };
-    
-        function detectDevTools() {
-            const widthThreshold = window.outerWidth - window.innerWidth > 100;
-            const heightThreshold = window.outerHeight - window.innerHeight > 100;
-    
-            if (widthThreshold || heightThreshold) {
-                devtools.open = true;
-            } else {
-                devtools.open = false;
-            }
-    
-            if (devtools.open) {
-                document.body.innerHTML = "<h1>🛑 Unauthorized Access Detected!</h1>";
-                console.clear();
-            }
-        }
-    
-        setInterval(detectDevTools, 1000);
-    })();
 </script>
 <script>
 
