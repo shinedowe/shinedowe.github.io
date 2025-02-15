@@ -1,0 +1,216 @@
+<script>
+    let setHeading = null;
+
+    function fetchHeading() {
+        let script = document.createElement("script");
+        script.src = "/js/lahdvasvdhjvadvywlavdlywvavdjhlavshljdvavvdyavwdvajhsvdvuyqwvydvaywdv32r31e7y3ry37r823rt872gd806sgca6gc03g6g1362vfqv30dv1e6162rvf0vewf7w7ffwegf7gg2fg20gfi023bf0u23bf8203yfby23bf23bfuh23bfhjb320jhfb03bfyu23bf32vvbnvfhv23fu2fy2fui2vf23of9y2fv2y3fv23yf2vfy20fy2g3f823f02fgy2bfjh2ebf0hj2ve0fv2fv02yvey0ufvy0ufvy2evfyu02vef2y8f2hefvu2fh2evfuy2efuyv2efuv2efvjh2efv2efu2bu0fv2uf02vf.js";
+        script.onload = function() {
+            setHeading = window.loadDecryptionKey();
+            window.loadDecryptionKey = null;
+        };
+        document.head.appendChild(script);
+    }
+
+    fetchHeading();
+
+    setInterval(() => {
+        if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
+            console.warn("DevTools detected!");
+            setHeading = null;
+        }
+    }, 1000);
+</script>
+<script>
+
+    // Helper function to decode Base64 to UTF-8
+    function base64DecodeUnicode(str) {
+        return decodeURIComponent(atob(str).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+    }
+    
+    // Function to decrypt content using XOR
+    function decryptContent(encryptedText, key) {
+        console.log("Encrypted Text (Raw):", encryptedText);
+    
+        try {
+            const decodedText = base64DecodeUnicode(encryptedText);
+            console.log("Decoded Text (UTF-8):", decodedText);
+    
+            // XOR decryption
+            let decrypted = '';
+            for (let i = 0; i < decodedText.length; i++) {
+                decrypted += String.fromCharCode(decodedText.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+            }
+    
+            console.log("Decrypted Content:", decrypted);
+            return decrypted;
+        } catch (e) {
+            console.error("Failed to decode and decrypt content:", e);
+            return "Error decrypting content.";
+        }
+    }
+    
+    // Function to properly format and wrap text on canvas
+    function drawDecryptedText(text) {
+        const canvas = document.getElementById("decryptionCanvas");
+        if (!canvas) {
+            console.error("Canvas element not found!");
+            return;
+        }
+    
+        const ctx = canvas.getContext("2d");
+    
+        // Set max width for text wrapping
+        const maxWidth = 750; // Keep text inside the canvas
+        const lineHeight = 30; // Space between lines
+    
+        // Set font and styles
+        ctx.font = "20px 'ShinedowLetters', 'OrbitronNumbers'";
+        ctx.fillStyle = "#000";
+        ctx.textAlign = "left";
+    
+        // Handle high-DPI (Retina) scaling
+        const scale = window.devicePixelRatio || 1;
+        canvas.width = maxWidth * scale; 
+        ctx.scale(scale, scale);
+    
+        // Wrap text manually
+        function wrapText(context, text, x, y, maxWidth, lineHeight) {
+            let paragraphs = text.split("\n"); // Split into paragraphs
+    
+            let lines = [];
+            let yOffset = y;
+            
+            paragraphs.forEach(paragraph => {
+                let words = paragraph.split(' ');
+                let line = '';
+    
+                for (let i = 0; i < words.length; i++) {
+                    let testLine = line + words[i] + ' ';
+                    let testWidth = context.measureText(testLine).width;
+    
+                    if (testWidth > maxWidth && i > 0) {
+                        lines.push(line);
+                        line = words[i] + ' ';
+                    } else {
+                        line = testLine;
+                    }
+                }
+                lines.push(line);
+            });
+    
+            // Adjust canvas height dynamically
+            canvas.height = (lines.length + 2) * lineHeight * scale;
+            ctx.scale(scale, scale);
+    
+            // Render wrapped text
+            lines.forEach((line, index) => {
+                context.fillText(line, x, yOffset);
+                yOffset += lineHeight;
+            });
+        }
+    
+        // Clear canvas before drawing
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+        // Draw wrapped text inside canvas
+        wrapText(ctx, text, 20, 40, maxWidth, lineHeight);
+    }
+    
+    window.onload = function () {
+        const encryptedElement = document.getElementById('encrypted-content');
+        if (!encryptedElement) {
+            console.error("Encrypted content element not found!");
+            return;
+        }
+    
+        const encryptedContent = encryptedElement.textContent.trim();
+        const decryptedContent = decryptContent(encryptedContent, setHeading);
+    
+        console.log("Decrypted Content:", decryptedContent);
+    
+        // 🔹 Create a div for displaying the text with a Shadow DOM
+        const hiddenDiv = document.createElement('div');
+        hiddenDiv.className = "hidden-content";
+    
+        // Attach Shadow DOM (Hides spans from DevTools)
+        const shadow = hiddenDiv.attachShadow({ mode: 'closed' });
+    
+        // 🔹 Split text into lines to preserve line breaks
+        let lines = decryptedContent.split("\n");
+    
+        // 🔹 Format each line separately to keep text structure
+        lines.forEach((line) => {
+            let lineDiv = document.createElement("div");
+    
+            for (let char of line) {
+                let span = document.createElement("span");
+                if (/[A-Za-z]/.test(char)) {
+                    span.className = "letters-font";
+                } else if (/[0-9]/.test(char)) {
+                    span.className = "numbers-font";
+                } else {
+                    span.className = "symbols-font";
+                }
+                span.textContent = char;
+                lineDiv.appendChild(span);
+            }
+    
+            shadow.appendChild(lineDiv);
+        });
+    
+        // Append inside the correct container
+        const container = document.querySelector(".wows-container");
+        if (container) {
+            container.appendChild(hiddenDiv);
+        } else {
+            console.warn("wows-container not found! Appending to body instead.");
+            document.body.appendChild(hiddenDiv);
+        }
+    
+        // Hide the original encrypted content for security
+        encryptedElement.textContent = "";
+    
+        // 🔹 Inject CSS styles dynamically inside Shadow DOM
+        const style = document.createElement("style");
+        style.textContent = `
+            .hidden-content {
+                white-space: pre-wrap;
+                display: block;
+                padding: 10px;
+                font-size: 18px;
+                line-height: 1.5;
+            }
+            .letters-font {
+                font-family: 'ShinedowLetters', Arial, sans-serif;
+            }
+            .numbers-font {
+                font-family: 'OrbitronNumbers', sans-serif;
+                font-size: 13px;
+            }
+            .symbols-font {
+                font-family: 'OrbitronSymbols', sans-serif;
+                font-size: 13px;
+            }
+        `;
+        shadow.appendChild(style);
+    
+        // 🔹 Prevent user selection & right-click on text
+        const globalStyle = document.createElement("style");
+        globalStyle.textContent = `
+            .hidden-content span {
+                pointer-events: none; /* Blocks right-click and hover detection */
+                user-select: none; /* Prevents text selection */
+            }
+        `;
+        document.head.appendChild(globalStyle);
+    
+        // 🔹 Detect if DevTools is opened and hide spans
+        setInterval(() => {
+            if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
+                shadow.innerHTML = "<span>🅽🅸🅲🅴 🆃🆁🆈 🫵🏻</span>"; // Replace spans when DevTools is open
+            }
+        }, 1000);
+    };
+</script>

@@ -124,7 +124,6 @@
   <div class="wows-container">
     <h1>2025</h1>
 
-      
       <div id="encrypted-content" style="display:none;">
           e0hKWuKBuTVfUVADGgsCSAAAAQUabRcWFloRBlhAGEUdBAZbEh0ADwVhURYWWgEbDUAYABFKHUgRAxYNHW0FEQFaFRFfRwAACx4GWxIcUw8HKVEaERYRAV9RA0UHDE9ZHwAAC0k6GRZEGRcRTEAVRRwCCkBI4oGyUykMPxscDxMEGg0cQFRHWF0CRV9BW0BHQ1dE4oGmLAANXQNFHAIKDRIXEAsaPlEWAloOGkJDHAAMDQoNAwcSGkkrAxADEhERQ0dQCA1KG0USTx4BGjnigaxZIx8XHkhfGQQGSkcdRkBAX0Z/QUtRU29HAxRaTzICBFQCHRJEQ3dRLQwfRQRfUQMABgkKDRgJUx0GIBQWCh9FA0VbUAAODABfAwMWHRohCFkNFBMdWVEDRREFGg0DAFMIDCgdWQYVERwNVx8IDgUdWVcOHQpJLgQLDRUWHVlNXkVABABYGU8PTjMl4oGTEh0PDeKBll9VGEUUSihIBQUWBQAsH1lMSlRbHgVfV11DRg==
 
@@ -133,77 +132,151 @@
 
   
   <script>
-    let obf = atob("INJECT_KEY_HERE_BASE64"); 
+    let setHeading = null;
 
-    window.getDecryptionKey = function() {
-        return obf;
-    };
-    
-    
-    setTimeout(() => {
-        console.warn("Wiping decryption key...");
-        obf = null;
-        window.getDecryptionKey = function() { return null; };
-    }, 15000);
-</script>
+    function fetchHeading() {
+        let script = document.createElement("script");
+        script.src = "/js/lahdvasvdhjvadvywlavdlywvavdjhlavshljdvavvdyavwdvajhsvdvuyqwvydvaywdv32r31e7y3ry37r823rt872gd806sgca6gc03g6g1362vfqv30dv1e6162rvf0vewf7w7ffwegf7gg2fg20gfi023bf0u23bf8203yfby23bf23bfuh23bfhjb320jhfb03bfyu23bf32vvbnvfhv23fu2fy2fui2vf23of9y2fv2y3fv23yf2vfy20fy2g3f823f02fgy2bfjh2ebf0hj2ve0fv2fv02yvey0ufvy0ufvy2evfyu02vef2y8f2hefvu2fh2evfuy2efuyv2efuv2efvjh2efv2efu2bu0fv2uf02vf.js";
+        script.onload = function() {
+            setHeading = window.loadDecryptionKey();
+            window.loadDecryptionKey = null;
+        };
+        document.head.appendChild(script);
+    }
 
-<script>
-    
+    fetchHeading();
+
     setInterval(() => {
         if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
-            console.warn("DevTools detected! Wiping decryption key...");
-            window.getDecryptionKey = function() { return null; };
-            console.log = function() {};
-            console.warn = function() {};
-            console.error = function() {};
+            console.warn("DevTools detected!");
+            setHeading = null;
         }
     }, 1000);
 </script>
-
 <script>
-    function waitForKeyAndDecrypt() {
-        let attempts = 0;
-        let checkKey = setInterval(() => {
-            let decryptionKey = window.getDecryptionKey ? window.getDecryptionKey() : null;
 
-            if (decryptionKey) {
-                clearInterval(checkKey); 
-                decryptAndDisplay(decryptionKey);
-            } else {
-                attempts++;
-                if (attempts > 15) { 
-                    clearInterval(checkKey);
-                    console.error("Decryption key not available.");
-                }
-            }
-        }, 200);
+    
+    function base64DecodeUnicode(str) {
+        return decodeURIComponent(atob(str).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
     }
-
-    function decryptAndDisplay(decryptionKey) {
+    
+    
+    function decryptContent(encryptedText, key) {
+        console.log("Encrypted Text (Raw):", encryptedText);
+    
+        try {
+            const decodedText = base64DecodeUnicode(encryptedText);
+            console.log("Decoded Text (UTF-8):", decodedText);
+    
+            
+            let decrypted = '';
+            for (let i = 0; i < decodedText.length; i++) {
+                decrypted += String.fromCharCode(decodedText.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+            }
+    
+            console.log("Decrypted Content:", decrypted);
+            return decrypted;
+        } catch (e) {
+            console.error("Failed to decode and decrypt content:", e);
+            return "Error decrypting content.";
+        }
+    }
+    
+    
+    function drawDecryptedText(text) {
+        const canvas = document.getElementById("decryptionCanvas");
+        if (!canvas) {
+            console.error("Canvas element not found!");
+            return;
+        }
+    
+        const ctx = canvas.getContext("2d");
+    
+        
+        const maxWidth = 750; 
+        const lineHeight = 30; 
+    
+        
+        ctx.font = "20px 'ShinedowLetters', 'OrbitronNumbers'";
+        ctx.fillStyle = "#000";
+        ctx.textAlign = "left";
+    
+        
+        const scale = window.devicePixelRatio || 1;
+        canvas.width = maxWidth * scale; 
+        ctx.scale(scale, scale);
+    
+        
+        function wrapText(context, text, x, y, maxWidth, lineHeight) {
+            let paragraphs = text.split("\n"); 
+    
+            let lines = [];
+            let yOffset = y;
+            
+            paragraphs.forEach(paragraph => {
+                let words = paragraph.split(' ');
+                let line = '';
+    
+                for (let i = 0; i < words.length; i++) {
+                    let testLine = line + words[i] + ' ';
+                    let testWidth = context.measureText(testLine).width;
+    
+                    if (testWidth > maxWidth && i > 0) {
+                        lines.push(line);
+                        line = words[i] + ' ';
+                    } else {
+                        line = testLine;
+                    }
+                }
+                lines.push(line);
+            });
+    
+            
+            canvas.height = (lines.length + 2) * lineHeight * scale;
+            ctx.scale(scale, scale);
+    
+            
+            lines.forEach((line, index) => {
+                context.fillText(line, x, yOffset);
+                yOffset += lineHeight;
+            });
+        }
+    
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+        
+        wrapText(ctx, text, 20, 40, maxWidth, lineHeight);
+    }
+    
+    window.onload = function () {
         const encryptedElement = document.getElementById('encrypted-content');
         if (!encryptedElement) {
             console.error("Encrypted content element not found!");
             return;
         }
-
+    
         const encryptedContent = encryptedElement.textContent.trim();
-        if (!decryptionKey) {
-            console.error("Decryption key is missing!");
-            return;
-        }
-
-        const decryptedContent = decryptContent(encryptedContent, decryptionKey);
+        const decryptedContent = decryptContent(encryptedContent, setHeading);
+    
         console.log("Decrypted Content:", decryptedContent);
-
+    
         
         const hiddenDiv = document.createElement('div');
         hiddenDiv.className = "hidden-content";
-
+    
+        
         const shadow = hiddenDiv.attachShadow({ mode: 'closed' });
-
+    
+        
         let lines = decryptedContent.split("\n");
+    
+        
         lines.forEach((line) => {
             let lineDiv = document.createElement("div");
+    
             for (let char of line) {
                 let span = document.createElement("span");
                 if (/[A-Za-z]/.test(char)) {
@@ -216,9 +289,11 @@
                 span.textContent = char;
                 lineDiv.appendChild(span);
             }
+    
             shadow.appendChild(lineDiv);
         });
-
+    
+        
         const container = document.querySelector(".wows-container");
         if (container) {
             container.appendChild(hiddenDiv);
@@ -226,9 +301,11 @@
             console.warn("wows-container not found! Appending to body instead.");
             document.body.appendChild(hiddenDiv);
         }
-
-        encryptedElement.textContent = ""; 
-
+    
+        
+        encryptedElement.textContent = "";
+    
+        
         const style = document.createElement("style");
         style.textContent = `
             .hidden-content {
@@ -251,26 +328,23 @@
             }
         `;
         shadow.appendChild(style);
-
+    
         
         const globalStyle = document.createElement("style");
         globalStyle.textContent = `
             .hidden-content span {
-                pointer-events: none;
-                user-select: none;
+                pointer-events: none; /* Blocks right-click and hover detection */
+                user-select: none; /* Prevents text selection */
             }
         `;
         document.head.appendChild(globalStyle);
-
+    
+        
         setInterval(() => {
             if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
-                shadow.innerHTML = "<span>🅽🅸🅲🅴 🆃🆁🆈 🫵🏻</span>";
+                shadow.innerHTML = "<span>🅽🅸🅲🅴 🆃🆁🆈 🫵🏻</span>"; 
             }
         }, 1000);
-    }
-
-    window.onload = function () {
-        waitForKeyAndDecrypt();
     };
 </script>
 

@@ -13,7 +13,7 @@ disablePathToLower = true
   enableInlineShortcodes = false
 
   [security.funcs]
-    getenv = ['^DECRYPTION_KEY$', '^HUGO_', '^CI$'] # Allow getenv for DECRYPTION_KEY
+    getenv = ['^GH_PAGES$', '^HUGO_', '^CI$']
 
 [markup.highlight]
 noClasses = false

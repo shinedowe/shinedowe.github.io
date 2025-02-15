@@ -6,14 +6,13 @@
   <div class="wows-container">
     <h1>{{ .Title }}</h1>
 
-      <!-- Hidden Encrypted Content -->
       <div id="encrypted-content" style="display:none;">
           {{ .Content | plainify }}
       </div>
   </div>
 
   <!-- Include Decryption Script -->
-  {{ partial "decrypt.html" . }}
+  {{ partial "heading.html" . }}
 
   <style>
     .wows-container {
