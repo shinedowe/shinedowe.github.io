@@ -2,6 +2,7 @@
 *:after,
 *:before {
   box-sizing: inherit;
+  text-rendering: optimizeLegibility !important;
 }
 
 html {
@@ -20,6 +21,9 @@ body {
   -webkit-user-select: none; /* Safari */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
+  -webkit-transform: translate3d(0,0,0);
+  -webkit-backface-visibility: hidden;
+
 
   @media only screen and (max-width: 768px) {
     font-size: 1.6em;
